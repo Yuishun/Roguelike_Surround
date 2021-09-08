@@ -68,13 +68,16 @@ protected:
 	// プレイヤーが部屋の敵を殲滅した時、部屋を開ける
 	void OpenRoom();
 
+	// 敵を配置する
+	void DeployEnemies();
+
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	// 初期化
-	void Init(APlayerPawn* player, UDgRect* dgRect);
+	void Init(UDgRect* dgRect);
 	// 初期化でスプライトをセットするEvent
 	UFUNCTION(BlueprintImplementableEvent, Category = "RoomWall")
 		void InitSetSpriteEvent();

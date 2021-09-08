@@ -185,6 +185,7 @@ void APlayerPawn::DrawLine_Begin()
 		// 指定のDrawLineを現在の位置に移動
 		location.Z = 10;
 		m_DrawLines[m_NowDrawLineIdx]->SetActorLocation(location);
+		m_DrawLines[m_NowDrawLineIdx]->mesh->ClearAllMeshSections();	// meshの形をリセット
 		m_DrawLineParticle->SetActorLocation(location);
 	}
 	else			// DrawLine状態を解除

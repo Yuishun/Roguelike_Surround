@@ -11,6 +11,8 @@ UEnemyManager::UEnemyManager()
 	PrimaryComponentTick.bCanEverTick = true;
 
 	// ...
+
+	bReadyEnemyMove = false;
 }
 
 
@@ -27,8 +29,17 @@ void UEnemyManager::CreateEnemies(int32 num)
 {
 	for (int32 i = 0; i < num; i++)
 	{
-		//enemies.Add()
+		auto enemy = GetCreateEnemyType();
+		if (!enemy)
+		{
+			continue;
+		}
+		enemies.Add(
+			enemy
+		);
 	}
+
+	bReadyEnemyMove = true;
 }
 
 // Called every frame
@@ -37,12 +48,24 @@ void UEnemyManager::TickComponent(float DeltaTime, ELevelTick TickType, FActorCo
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
+	if (!bReadyEnemyMove)
+		return;
+
+	for (auto enemy : enemies)
+	{
+		if (enemy->bisDead)
+		{
+			continue;
+		}
+		enemy->Move(m_player);
+	}
+
 }
 
 bool UEnemyManager::WannihilationEnemy()
 {
 	if (enemies.Num() <= 0)
-		return false;
+		return true;
 
 	bool refbool = true;
 	for (auto enemy : enemies)
@@ -54,4 +77,42 @@ bool UEnemyManager::WannihilationEnemy()
 		}
 	}
 	return true;
+}
+
+AEnemy* UEnemyManager::GetCreateEnemyType()
+{
+	FString path = "/Game/Surround/Blueprint/";
+
+	path += "Enemy_Normal.Enemy_Normal_C";
+
+	// AActor::GetWorldから、UWorldを得る
+	UWorld* const World = GetWorld();
+	// BlueprintのWallアクターを取得する
+	TSubclassOf<class AActor> sc = TSoftClassPtr<AActor>(FSoftObjectPath(*path)).LoadSynchronous(); // パスに該当するクラスを取得;
+	if (!World || sc == nullptr)	// Nullチェック
+	{
+		return nullptr;
+	}
+
+	auto actor = World->SpawnActor<AActor>(sc, FVector::ZeroVector, FRotator(0, 0, 0));
+
+	//actor->SetActorHiddenInGame(true);
+
+	return Cast<AEnemy>(actor);
+}
+
+void UEnemyManager::SetEnemyLocation(const int32& i, FVector location)
+{
+	if (i >= enemies.Num())
+	{
+		return;
+	}
+
+	//enemies[i]->SetActorHiddenInGame(false);
+
+	// カプセルコンポーネントの高さをZの値にする
+	auto capcel = enemies[i]->GetComponentByClass(UCapsuleComponent::StaticClass());
+	if(capcel)
+		location.Z = Cast<UCapsuleComponent>(capcel)->GetUnscaledCapsuleHalfHeight();
+	enemies[i]->SetActorLocation(location);
 }

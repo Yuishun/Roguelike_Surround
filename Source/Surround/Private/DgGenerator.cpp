@@ -2,6 +2,7 @@
 
 
 #include "DgGenerator.h"
+#include "Surround_GameInstance.h"
 
 // Sets default values
 ADgGenerator::ADgGenerator()
@@ -9,18 +10,31 @@ ADgGenerator::ADgGenerator()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
-	width = 150;
+	width = 120;
 	height = 100;
 	MinRoomWidth = 7;
 	MinRoomHeight = 7;
-	MaxRoomWidth = 50;
-	MaxRoomHeight = 50;
+	MaxRoomWidth = 30;
+	MaxRoomHeight = 30;
 }
 
 // Called when the game starts or when spawned
 void ADgGenerator::BeginPlay()
 {
 	Super::BeginPlay();
+
+	auto instance = USurround_GameInstance::GetInstance();
+	if (instance && !instance->Player)
+	{
+		instance->Player =
+			Cast<APlayerPawn>(
+				SpawnActor_BluePrintClass(
+					"/Game/Surround/Blueprint/PlayerPawn.PlayerPawn_C",
+					FVector::ZeroVector,
+					FRotator(0, 0, 0)
+				)
+				);
+	}
 
 	GenerateMap();
 }
@@ -271,7 +285,8 @@ void ADgGenerator::GenerateMap()
 
 void ADgGenerator::SetPlayerLocation(UDgRect* startRect)
 {
-	if (player == nullptr)
+	auto instance = USurround_GameInstance::GetInstance();
+	if (!instance || !instance->Player)
 	{
 		return;
 	}
@@ -281,7 +296,7 @@ void ADgGenerator::SetPlayerLocation(UDgRect* startRect)
 		(startRect->Room.top + startRect->Room.Height() * 0.5f) * 100,
 		100);
 
-	player->SetActorLocation(
+	instance->Player->SetActorLocation(
 		location
 	);
 }
@@ -495,7 +510,7 @@ void ADgGenerator::CreateRoomContents()
 			FString("/Game/Surround/Blueprint/RoomController.RoomController_C"),
 			FVector::ZeroVector, FRotator(0, 0, 0));
 		// Castして、初期化する
-		Cast<ARoomController>(actor)->Init(player, div);
+		Cast<ARoomController>(actor)->Init(div);
 	}
 }
 
@@ -540,11 +555,11 @@ void ADgGenerator::ConnectRooms()
 			//!road.IfDeleteIsolationRoom(roads) &&	// 消しても孤立しないかつ
 			FMath::RandBool())			// ランダムに
 		{
-			// 道を削除する
-			road.Delete();
 			// 道を削除リストに追加
 			if (IsIsolationRoom(road))
 			{
+				// 道を削除する
+				road.Delete();
 				// 消した場合、すべての区画が孤立しない場合
 				delRoads.Add(road);
 			}

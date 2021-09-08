@@ -2,6 +2,7 @@
 
 
 #include "RoomController.h"
+#include "Surround_GameInstance.h"
 
 // Sets default values
 ARoomController::ARoomController()
@@ -26,9 +27,9 @@ void ARoomController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	GetWorldTimerManager().ClearAllTimersForObject(this);
 }
 
-void ARoomController::Init(APlayerPawn* player, UDgRect* dgRect)
+void ARoomController::Init(UDgRect* dgRect)
 {
-	m_player = player;
+	m_player = USurround_GameInstance::GetInstance()->Player;
 	m_DgRect = dgRect;
 
 	// 敵・ボスが出てくるなら、閉じる判断をすべきである
@@ -107,7 +108,15 @@ void ARoomController::Init(APlayerPawn* player, UDgRect* dgRect)
 		// 敵をスポーンさせる準備
 	if (bShouldRoomDoor)
 	{
-		m_EnemyManager->CreateEnemies(m_DgRect->enemyNum);
+		if (m_DgRect->RoomState == ERoomState::ENEMY)
+		{
+			m_EnemyManager->m_player = m_player;
+			m_EnemyManager->CreateEnemies(m_DgRect->enemyNum);
+		}
+		else if (m_DgRect->RoomState == ERoomState::BOSS)
+		{
+
+		}
 	}
 }
 
@@ -124,6 +133,7 @@ void ARoomController::Tick(float DeltaTime)
 			&& !m_EnemyManager->WannihilationEnemy())
 		{
 			CloseRoom();
+			DeployEnemies();
 		}
 		// 部屋を開けるべきであり、敵が全滅している場合
 		else if (m_RoomDoorState == ERoomDoorState::CLOSE
@@ -224,5 +234,21 @@ void ARoomController::OpenRoomEvent()
 		m_time = 0;
 		m_RoomDoorState = ERoomDoorState::OPEN;
 		bShouldRoomDoor = false;
+	}
+}
+
+void ARoomController::DeployEnemies()
+{
+	auto& room = m_DgRect->Room;
+	for (int32 i = 0; i < m_DgRect->enemyNum; i++)
+	{
+		int32 x = FMath::RandRange(room.left + 1, room.right - 2);
+		int32 y = FMath::RandRange(room.top + 1, room.bottom - 2);
+
+		m_EnemyManager->SetEnemyLocation(i,
+			FVector((x + 0.5f) * 100,
+				(y + 0.5f) * 100,
+				0)
+		);
 	}
 }

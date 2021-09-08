@@ -61,9 +61,6 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 		TArray<UDgRect*> divs;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-		APlayerPawn* player = nullptr;
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

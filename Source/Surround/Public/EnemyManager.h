@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "Components/SceneComponent.h"
 #include "Enemy.h"
+#include "Enemy_Normal.h"
+#include "PlayerPawn.h"
 #include "EnemyManager.generated.h"
 
 
@@ -17,8 +19,11 @@ public:
 	// Sets default values for this component's properties
 	UEnemyManager();
 
-	// 敵をスポーンさせるか
-	bool bShouldSpawn;
+	// 敵が動ける状態か
+	bool bReadyEnemyMove;
+
+	// プレイヤーの参照
+	APlayerPawn* m_player;
 
 	// 管理する敵
 	UPROPERTY(EditAnywhere)
@@ -38,6 +43,9 @@ public:
 	// 敵を指定の数、作る
 	void CreateEnemies(int32 num);
 
-	// 作る敵の種類を決定
+	// 作る敵の種類を決定し生成する
+	AEnemy* GetCreateEnemyType();
 
+	// 敵をアクティブにして、配置する
+	void SetEnemyLocation(const int32& i, FVector location);
 };

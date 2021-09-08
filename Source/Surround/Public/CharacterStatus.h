@@ -6,6 +6,25 @@
 #include "UObject/NoExportTypes.h"
 #include "CharacterStatus.generated.h"
 
+UENUM(BlueprintType)
+enum class EConditionMode : uint8
+{
+	Plus,
+	Multiply,
+};
+
+USTRUCT(BlueprintType)
+struct FStatusCondition
+{
+	GENERATED_BODY()
+
+public:
+
+	EConditionMode Mode;
+
+	float EffectValue;
+};
+
 /**
  * キャラクターのステータスの基本
  */
@@ -24,6 +43,8 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 		float Attack;
 
+	UPROPERTY(BlueprintReadWrite)
+		TArray<FStatusCondition> StatusEffect;
 
 public:
 
@@ -32,5 +53,7 @@ public:
 		HP = hp;
 		Attack = attack;
 	}
+
+	
 
 };

@@ -140,7 +140,7 @@ void ADrawLine::CreateDrawLineMesh(const TArray<FVector>& lineposes)
 	//if (Addvertices.Num() == 0)
 	//{
 
-		while ((vertices.Num() - used_idxes.Num()) > 2)
+		while ((vertices.Num() - used_idxes.Num()) > 3)
 		{
 			error_num = 0;
 			DetecteMeshIdx(true);

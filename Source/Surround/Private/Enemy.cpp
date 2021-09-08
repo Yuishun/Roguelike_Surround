@@ -7,10 +7,10 @@
 AEnemy::AEnemy()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	bisDead = false;
-	Status = NewObject<UCharacterStatus>();
+	Status = CreateDefaultSubobject<UCharacterStatus>(TEXT("status"));
 }
 
 // Called when the game starts or when spawned
@@ -20,13 +20,6 @@ void AEnemy::BeginPlay()
 	
 }
 
-// Called every frame
-void AEnemy::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-
 // Called to bind functionality to input
 void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -34,3 +27,12 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 }
 
+void AEnemy::SetActiveAllComponents(bool active)
+{
+	auto components = GetComponents();
+
+	for (auto cp : components)
+	{
+		cp->SetActive(active);
+	}
+}
